@@ -5,12 +5,11 @@ import { db } from "@/lib/prisma";
 
 import ConsumptionMethodOption from "./components/consumption-method-option";
 
-interface RestaurantPageProps {
+export default async function RestaurantPage({
+  params,
+}: {
   params: { slug: string };
-  searchParams: { [key: string]: string | string[] | undefined };
-}
-
-const RestaurantPage = async ({ params }: RestaurantPageProps) => {
+}) {
   const { slug } = params;
 
   try {
@@ -73,6 +72,4 @@ const RestaurantPage = async ({ params }: RestaurantPageProps) => {
     console.error("Erro ao buscar restaurante:", error);
     return notFound();
   }
-};
-
-export default RestaurantPage;
+}
