@@ -7,6 +7,7 @@ import ConsumptionMethodOption from "./components/consumption-method-option";
 
 interface RestaurantPageProps {
   params: { slug: string };
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
 const RestaurantPage = async ({ params }: RestaurantPageProps) => {
