@@ -1,0 +1,2 @@
+-- Este é um arquivo de migração vazio criado para corrigir o problema
+-- A migração original pode ter sido perdida ou removida incorretamente 

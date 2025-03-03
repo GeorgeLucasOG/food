@@ -1,40 +1,42 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Restaurant {
-  id             String         @id @default(uuid())
-  name           String
-  slug           String         @unique
-  description    String
-  avatarImageUrl String
-  coverImageUrl  String
-  menuCategories MenuCategory[]
-  products       Product[]
-  orders         Order[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id                 String               @id @default(uuid())
+  name               String
+  slug               String               @unique
+  description        String
+  avatarImageUrl     String
+  coverImageUrl      String
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  AccountsPayable    AccountsPayable[]
+  AccountsReceivable AccountsReceivable[]
+  CashMovements      CashMovements[]
+  CashRegisters      CashRegisters[]
+  Ingredients        Ingredients[]
+  menuCategories     MenuCategory[]
+  orders             Order[]
+  products           Product[]
+  StockMovements     StockMovements[]
+  Suppliers          Suppliers[]
 }
 
 model MenuCategory {
   id           String     @id @default(uuid())
   name         String
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   restaurantId String
-  products     Product[]
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  products     Product[]
 }
 
 model Product {
@@ -44,13 +46,13 @@ model Product {
   price          Float
   imageUrl       String
   ingredients    String[]
-  orderProducts  OrderProduct[]
-  restaurant     Restaurant     @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   restaurantId   String
-  menuCategory   MenuCategory   @relation(fields: [menuCategoryId], references: [id], onDelete: Cascade)
   menuCategoryId String
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+  orderProducts  OrderProduct[]
+  menuCategory   MenuCategory   @relation(fields: [menuCategoryId], references: [id], onDelete: Cascade)
+  restaurant     Restaurant     @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 }
 
 model Order {
@@ -58,31 +60,140 @@ model Order {
   total             Float
   status            OrderStatus
   consumptionMethod ConsumptionMethod
-  restaurant        Restaurant        @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   restaurantId      String
-  orderProducts     OrderProduct[]
-  customerName      String
-  customerCpf       String
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
+  customerCpf       String
+  customerName      String
+  restaurant        Restaurant        @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  orderProducts     OrderProduct[]
 }
 
 model OrderProduct {
   id        String   @id @default(uuid())
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId   Int
   quantity  Int
   price     Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model AccountsPayable {
+  id           String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  description  String
+  pixKey       String?
+  boletoCode   String?
+  dueDate      DateTime   @db.Timestamptz(6)
+  paidDate     DateTime?  @db.Timestamptz(6)
+  amount       Float
+  status       String     @default("PENDING")
+  restaurantId String
+  createdAt    DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime?  @db.Timestamptz(6)
+  Restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model AccountsReceivable {
+  id           String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  description  String
+  pixKey       String?
+  boletoCode   String?
+  dueDate      DateTime   @db.Timestamptz(6)
+  receivedDate DateTime?  @db.Timestamptz(6)
+  amount       Float
+  status       String     @default("PENDING")
+  restaurantId String
+  createdAt    DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime?  @db.Timestamptz(6)
+  Restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model CashMovements {
+  id             String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  cashRegisterId String        @db.Uuid
+  amount         Float
+  type           String
+  description    String
+  paymentMethod  String
+  orderId        Int?
+  restaurantId   String
+  createdAt      DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime?     @db.Timestamptz(6)
+  CashRegisters  CashRegisters @relation(fields: [cashRegisterId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Restaurant     Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model CashRegisters {
+  id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name          String
+  initialAmount Float
+  currentAmount Float
+  openedAt      DateTime?       @db.Timestamptz(6)
+  closedAt      DateTime?       @db.Timestamptz(6)
+  status        String
+  restaurantId  String
+  createdAt     DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime?       @db.Timestamptz(6)
+  CashMovements CashMovements[]
+  Restaurant    Restaurant      @relation(fields: [restaurantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Ingredients {
+  id             String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name           String
+  quantity       Float            @default(0)
+  minQuantity    Float            @default(0)
+  unit           String
+  supplierId     String?          @db.Uuid
+  alertThreshold Float?
+  restaurantId   String
+  createdAt      DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime?        @db.Timestamptz(6)
+  Restaurant     Restaurant       @relation(fields: [restaurantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  StockMovements StockMovements[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model StockMovements {
+  id           String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  ingredientId String      @db.Uuid
+  type         String
+  quantity     Float
+  description  String?
+  restaurantId String
+  createdAt    DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime?   @db.Timestamptz(6)
+  Ingredients  Ingredients @relation(fields: [ingredientId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Restaurant   Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Suppliers {
+  id           String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name         String
+  companyName  String?
+  email        String?
+  phone        String?
+  cnpj         String?
+  address      String?
+  restaurantId String
+  createdAt    DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime?  @db.Timestamptz(6)
+  Restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum OrderStatus {
   PENDING
   IN_PREPARATION
+  PAYMENT_PENDING
+  PAYMENT_CONFIRMED
+  PAYMENT_FAILED  
   FINISHED
+  CANCELLED
 }
 
 enum ConsumptionMethod {
