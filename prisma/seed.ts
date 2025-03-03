@@ -484,6 +484,235 @@ const main = async () => {
   // Isso é necessário apenas se você precisar manter o histórico de pedidos
   
 
+  // Criando restaurante: Ponto do Café
+  const restaurant_bfd1da9a_f015_4910_8305_e5d1be8ae339 = await prisma.restaurant.create({
+    data: {
+  "id": "bfd1da9a-f015-4910-8305-e5d1be8ae339",
+  "name": "Ponto do Café",
+  "slug": "ponto",
+  "description": "Ponto do café, Lanches e café gourmet e sobremesas",
+  "avatarImageUrl": "https://img.cardapio.menu/storage/media/company_logo/27038858/conversions/logo.jpg",
+  "coverImageUrl": "https://images2.imgbox.com/9c/e8/9q0QkLkO_o.jpeg",
+  "createdAt": "2025-03-03T14:48:32.196Z",
+  "updatedAt": "2025-03-03T18:45:04.023Z"
+}
+  });
+
+
+  // Criando categoria: Lanches
+  const category_b3b4d9b7_275d_4c22_bb60_9b92090a18ec = await prisma.menuCategory.create({
+    data: {
+      ...{
+  "id": "b3b4d9b7-275d-4c22-bb60-9b92090a18ec",
+  "name": "Lanches",
+  "createdAt": "2025-03-03T14:51:10.756Z",
+  "updatedAt": "2025-03-03T14:51:10.756Z"
+},
+      restaurantId: restaurant_bfd1da9a_f015_4910_8305_e5d1be8ae339.id,
+    }
+  });
+
+
+  // Criando produtos para categoria: Lanches
+  await prisma.product.createMany({
+    data: [
+      {
+        ...{
+  "id": "fc92e942-1582-4a7e-a012-62543b01166b",
+  "name": "Tacos",
+  "description": "Lanche Mexicano",
+  "price": 12,
+  "imageUrl": "https://img.freepik.com/fotos-gratis/tacos-mexicanos-com-carne-legumes-e-cebola-vermelha_2829-8233.jpg?t=st=1740938499~exp=1740942099~hmac=3f5b4d93be877e3dff71fea0feb81c7a1bf538b454cd2657dbe256473f85d263&w=296",
+  "ingredients": [],
+  "createdAt": "2025-03-03T14:53:29.003Z",
+  "updatedAt": "2025-03-03T14:53:29.003Z"
+},
+        restaurantId: restaurant_bfd1da9a_f015_4910_8305_e5d1be8ae339.id,
+        menuCategoryId: category_b3b4d9b7_275d_4c22_bb60_9b92090a18ec.id,
+      },
+      {
+        ...{
+  "id": "51597151-6d0e-4109-9422-c1e72adb383a",
+  "name": "Bat Burguer",
+  "description": "Carne de frango gourmet\n- Queijo Coalho\n- Salada (Tomate e alface)\n- Molho artezanal\n- Pão Brichê",
+  "price": 29.9,
+  "imageUrl": "https://images2.imgbox.com/5c/5b/YdVWh9Kn_o.jpeg",
+  "ingredients": [],
+  "createdAt": "2025-03-03T18:16:34.477Z",
+  "updatedAt": "2025-03-03T18:40:07.194Z"
+},
+        restaurantId: restaurant_bfd1da9a_f015_4910_8305_e5d1be8ae339.id,
+        menuCategoryId: category_b3b4d9b7_275d_4c22_bb60_9b92090a18ec.id,
+      },
+      {
+        ...{
+  "id": "1ec88e47-a293-4092-8d7e-8369469e54e5",
+  "name": "Super Burguer",
+  "description": "Carne gourmet\n- Calabresa\n- Baicon\n- Queijo Mussarela\n- Queijo Cheddan\n- Molho artezanal\n- Pão Brichê",
+  "price": 39.99,
+  "imageUrl": "https://images2.imgbox.com/9c/e8/9q0QkLkO_o.jpeg",
+  "ingredients": [],
+  "createdAt": "2025-03-03T15:14:40.313Z",
+  "updatedAt": "2025-03-03T18:41:09.682Z"
+},
+        restaurantId: restaurant_bfd1da9a_f015_4910_8305_e5d1be8ae339.id,
+        menuCategoryId: category_b3b4d9b7_275d_4c22_bb60_9b92090a18ec.id,
+      },
+      {
+        ...{
+  "id": "e19143d3-debc-4b61-b7bd-7cf855d31065",
+  "name": "Hulk Burguer",
+  "description": "2 Carne gourmet\n- Calabresa\n- Baicon\n- Queijo Prata\n- Alfate e tomate\n- Molho artezanal\n- Ovo\n- Pão Brichê",
+  "price": 52,
+  "imageUrl": "https://images2.imgbox.com/ed/33/LI7iP2bi_o.jpeg",
+  "ingredients": [],
+  "createdAt": "2025-03-03T18:43:30.112Z",
+  "updatedAt": "2025-03-03T18:43:30.112Z"
+},
+        restaurantId: restaurant_bfd1da9a_f015_4910_8305_e5d1be8ae339.id,
+        menuCategoryId: category_b3b4d9b7_275d_4c22_bb60_9b92090a18ec.id,
+      },
+      {
+        ...{
+  "id": "55c4ae11-b798-4c84-8792-d75f9ad71bfd",
+  "name": "Maravilha Burguer",
+  "description": "Carne gourmet\n- Calabresa\n- Baicon\n- Queijo Prata\n- Queijo Cheddan\n- Molho artezanal\n- Maionese artezanal\n- Batata Palha\n- Pão Brichê",
+  "price": 42,
+  "imageUrl": "https://images2.imgbox.com/b9/e2/ih0bRW20_o.jpeg",
+  "ingredients": [],
+  "createdAt": "2025-03-03T18:04:18.739Z",
+  "updatedAt": "2025-03-03T18:43:47.859Z"
+},
+        restaurantId: restaurant_bfd1da9a_f015_4910_8305_e5d1be8ae339.id,
+        menuCategoryId: category_b3b4d9b7_275d_4c22_bb60_9b92090a18ec.id,
+      },
+      {
+        ...{
+  "id": "32a40233-38ec-4c59-8dc4-ecacb975cee9",
+  "name": "Spider Burguer",
+  "description": "Carne gourmet\n- Queijo Prata\n- Tomate\n- Molho artezanal\n- Pão Brichê",
+  "price": 34.9,
+  "imageUrl": "https://images2.imgbox.com/71/bd/k5uzRmsd_o.jpeg",
+  "ingredients": [],
+  "createdAt": "2025-03-03T18:13:57.507Z",
+  "updatedAt": "2025-03-03T18:44:11.779Z"
+},
+        restaurantId: restaurant_bfd1da9a_f015_4910_8305_e5d1be8ae339.id,
+        menuCategoryId: category_b3b4d9b7_275d_4c22_bb60_9b92090a18ec.id,
+      },
+    ],
+  });
+
+
+  // Criando categoria: Bebidas Geladas
+  const category_0a909ebd_3ab6_4169_af27_6bd3d9aa3f1f = await prisma.menuCategory.create({
+    data: {
+      ...{
+  "id": "0a909ebd-3ab6-4169-af27-6bd3d9aa3f1f",
+  "name": "Bebidas Geladas",
+  "createdAt": "2025-03-03T14:51:29.996Z",
+  "updatedAt": "2025-03-03T14:51:29.996Z"
+},
+      restaurantId: restaurant_bfd1da9a_f015_4910_8305_e5d1be8ae339.id,
+    }
+  });
+
+
+  // Criando produtos para categoria: Bebidas Geladas
+  await prisma.product.createMany({
+    data: [
+      {
+        ...{
+  "id": "7de1dd22-bcd6-4c14-bc0a-96d6d820ed4d",
+  "name": "Coca-cola",
+  "description": "Coca-cola gelada para acompanhar seu lanche.",
+  "price": 5.9,
+  "imageUrl": "https://u9a6wmr3as.ufs.sh/f/jppBrbk0cChQJS1b33q29eEsh0CVmOywrqx1UPnJpRGcHN5v",
+  "ingredients": [],
+  "createdAt": "2025-03-03T19:06:24.644Z",
+  "updatedAt": "2025-03-03T19:06:24.644Z"
+},
+        restaurantId: restaurant_bfd1da9a_f015_4910_8305_e5d1be8ae339.id,
+        menuCategoryId: category_0a909ebd_3ab6_4169_af27_6bd3d9aa3f1f.id,
+      },
+    ],
+  });
+
+
+  // Criando categoria: Café
+  const category_b487c74e_c9b3_4166_ae88_0f4fc0cb2d41 = await prisma.menuCategory.create({
+    data: {
+      ...{
+  "id": "b487c74e-c9b3-4166-ae88-0f4fc0cb2d41",
+  "name": "Café",
+  "createdAt": "2025-03-03T14:51:40.550Z",
+  "updatedAt": "2025-03-03T14:51:40.550Z"
+},
+      restaurantId: restaurant_bfd1da9a_f015_4910_8305_e5d1be8ae339.id,
+    }
+  });
+
+
+  // Criando categoria: Fritas
+  const category_4933186c_122c_449e_95cc_80a976caee96 = await prisma.menuCategory.create({
+    data: {
+      ...{
+  "id": "4933186c-122c-449e-95cc-80a976caee96",
+  "name": "Fritas",
+  "createdAt": "2025-03-03T14:51:47.007Z",
+  "updatedAt": "2025-03-03T14:51:47.007Z"
+},
+      restaurantId: restaurant_bfd1da9a_f015_4910_8305_e5d1be8ae339.id,
+    }
+  });
+
+
+  // Criando categoria: Sobremesa
+  const category_35e8981f_03f8_4662_9306_9069baeda065 = await prisma.menuCategory.create({
+    data: {
+      ...{
+  "id": "35e8981f-03f8-4662-9306-9069baeda065",
+  "name": "Sobremesa",
+  "createdAt": "2025-03-03T14:52:01.171Z",
+  "updatedAt": "2025-03-03T14:52:01.171Z"
+},
+      restaurantId: restaurant_bfd1da9a_f015_4910_8305_e5d1be8ae339.id,
+    }
+  });
+
+
+  // Criando categoria: Combos
+  const category_a3a4cad5_b52a_403f_a729_7ff11ded83e0 = await prisma.menuCategory.create({
+    data: {
+      ...{
+  "id": "a3a4cad5-b52a-403f-a729-7ff11ded83e0",
+  "name": "Combos",
+  "createdAt": "2025-03-03T14:52:17.551Z",
+  "updatedAt": "2025-03-03T14:52:17.551Z"
+},
+      restaurantId: restaurant_bfd1da9a_f015_4910_8305_e5d1be8ae339.id,
+    }
+  });
+
+
+  // Criando categoria: Pizza
+  const category_eca346c6_bdb0_475a_9028_c463da711f22 = await prisma.menuCategory.create({
+    data: {
+      ...{
+  "id": "eca346c6-bdb0-475a-9028-c463da711f22",
+  "name": "Pizza",
+  "createdAt": "2025-03-03T14:52:27.009Z",
+  "updatedAt": "2025-03-03T14:52:27.009Z"
+},
+      restaurantId: restaurant_bfd1da9a_f015_4910_8305_e5d1be8ae339.id,
+    }
+  });
+
+
+  // Opcionalmente, você pode adicionar código para restaurar os pedidos
+  // Isso é necessário apenas se você precisar manter o histórico de pedidos
+  
+
   console.log('Seed concluído com sucesso!');
 };
 
