@@ -65,6 +65,8 @@ model Order {
   updatedAt         DateTime          @updatedAt
   customerCpf       String
   customerName      String
+  address           String?           @db.VarChar(255)
+  whatsapp          String?           @db.VarChar(15)
   restaurant        Restaurant        @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   orderProducts     OrderProduct[]
 }
@@ -189,11 +191,7 @@ model Suppliers {
 enum OrderStatus {
   PENDING
   IN_PREPARATION
-  PAYMENT_PENDING
-  PAYMENT_CONFIRMED
-  PAYMENT_FAILED  
   FINISHED
-  CANCELLED
 }
 
 enum ConsumptionMethod {

@@ -17,6 +17,8 @@ interface CreateOrderInput {
   }>;
   consumptionMethod: ConsumptionMethod;
   slug: string;
+  address?: string;
+  whatsapp?: string;
 }
 
 export const createOrder = async (input: CreateOrderInput) => {
@@ -45,6 +47,8 @@ export const createOrder = async (input: CreateOrderInput) => {
       status: "PENDING",
       customerName: input.customerName,
       customerCpf: removeCpfPunctuation(input.customerCpf),
+      address: input.address,
+      whatsapp: input.whatsapp,
       orderProducts: {
         createMany: {
           data: productsWithPricesAndQuantities,

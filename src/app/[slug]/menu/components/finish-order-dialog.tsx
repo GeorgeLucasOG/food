@@ -48,6 +48,29 @@ const formSchema = z.object({
     .refine((value) => isValidCpf(value), {
       message: "CPF inválido.",
     }),
+  deliveryOption: z.enum(["euLevo", "delivery"]),
+  address: z
+    .string()
+    .trim()
+    .min(1, {
+      message: "O endereço é obrigatório quando Delivery é selecionado.",
+    })
+    .optional()
+    .refine((value) => (isDelivery ? value && value.length > 0 : true), {
+      message: "O endereço é obrigatório quando Delivery é selecionado.",
+    }),
+  whatsapp: z
+    .string()
+    .trim()
+    .min(1, {
+      message:
+        "O WhatsApp/Celular é obrigatório quando Delivery é selecionado.",
+    })
+    .optional()
+    .refine((value) => (isDelivery ? value && value.length > 0 : true), {
+      message:
+        "O WhatsApp/Celular é obrigatório quando Delivery é selecionado.",
+    }),
 });
 
 type FormSchema = z.infer<typeof formSchema>;
@@ -61,15 +84,19 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
   const { slug } = useParams<{ slug: string }>();
   const { products } = useContext(CartContext);
   const searchParams = useSearchParams();
-  const [isPending, startTransition] = useTransition()
+  const [isPending, startTransition] = useTransition();
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       cpf: "",
+      deliveryOption: "euLevo",
+      address: "",
+      whatsapp: "",
     },
     shouldUnregister: true,
   });
+  const isDelivery = form.watch("deliveryOption") === "delivery";
   const onSubmit = async (data: FormSchema) => {
     try {
       const consumptionMethod = searchParams.get(
@@ -85,9 +112,7 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
         });
         onOpenChange(false);
         toast.success("Pedido finalizado com sucesso!");
-      })
-     
-  
+      });
     } catch (error) {
       console.error(error);
     }
@@ -136,7 +161,95 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
                   </FormItem>
                 )}
               />
-
+              <FormField
+                control={form.control}
+                name="deliveryOption"
+                render={({ field }) => (
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Método de Entrega
+                    </label>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center">
+                        <input
+                          {...field}
+                          id="euLevo"
+                          type="radio"
+                          value="euLevo"
+                          className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                          required
+                        />
+                        <label
+                          htmlFor="euLevo"
+                          className="ml-3 block text-sm font-medium text-gray-700"
+                        >
+                          Eu levo
+                          <span
+                            className="ml-1 text-gray-500"
+                            title="Você irá buscar o pedido no local."
+                          ></span>
+                        </label>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          {...field}
+                          id="delivery"
+                          type="radio"
+                          value="delivery"
+                          className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                          required
+                        />
+                        <label
+                          htmlFor="delivery"
+                          className="ml-3 block text-sm font-medium text-gray-700"
+                        >
+                          Delivery
+                          <span
+                            className="ml-1 text-gray-500"
+                            title="Nós entregaremos o pedido no seu endereço."
+                          ></span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              />
+              {isDelivery && (
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Endereço</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Digite seu endereço..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              {isDelivery && (
+                <FormField
+                  control={form.control}
+                  name="whatsapp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>WhatsApp/Celular</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Digite seu WhatsApp ou celular..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <DrawerFooter>
                 <Button
                   type="submit"
@@ -144,7 +257,7 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
                   className="rounded-full"
                   disabled={isPending}
                 >
-                  {isPending && <Loader2Icon className="animate-spin"/>}
+                  {isPending && <Loader2Icon className="animate-spin" />}
                   Finalizar
                 </Button>
                 <DrawerClose asChild>
