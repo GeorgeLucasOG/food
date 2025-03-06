@@ -1,6 +1,6 @@
 "use client";
 
-import { OrderStatus, Prisma } from "@prisma/client";
+import { ConsumptionMethod, OrderStatus, Prisma } from "@prisma/client";
 import { ChevronLeftIcon, ScrollTextIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatCurrency } from "@/helpers/format-currency";
+import { formatDate } from "@/helpers/format-date";
 
 interface OrderListProps {
   orders: Array<
@@ -37,6 +38,12 @@ const getStatusLabel = (status: OrderStatus) => {
   return "";
 };
 
+const getConsumptionMethodLabel = (method: ConsumptionMethod) => {
+  if (method === "DINE_IN") return "Consumir aqui";
+  if (method === "TAKEAWAY") return "Embalar para Levar";
+  return "";
+};
+
 const OrderList = ({ orders }: OrderListProps) => {
   const router = useRouter();
   const handleBackClick = () => router.back();
@@ -57,10 +64,21 @@ const OrderList = ({ orders }: OrderListProps) => {
       {orders.map((order) => (
         <Card key={order.id}>
           <CardContent className="space-y-4 p-5">
-            <div
-              className={`w-fit rounded-full px-2 py-1 text-xs font-semibold text-white ${order.status === OrderStatus.FINISHED ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500"} `}
-            >
-              {getStatusLabel(order.status)}
+            <div className="flex items-center justify-between">
+              <div
+                className={`w-fit rounded-full px-2 py-1 text-xs font-semibold text-white ${
+                  order.status === OrderStatus.FINISHED
+                    ? "bg-green-500 text-white"
+                    : order.status === OrderStatus.IN_PREPARATION
+                      ? "bg-yellow-500 text-white"
+                      : "bg-gray-200 text-gray-500"
+                } `}
+              >
+                {getStatusLabel(order.status)}
+              </div>
+              <div className="text-xs text-gray-500">
+                {formatDate(order.createdAt)}
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <div className="relative h-5 w-5">
@@ -72,6 +90,16 @@ const OrderList = ({ orders }: OrderListProps) => {
                 />
               </div>
               <p className="text-sm font-semibold">{order.restaurant.name}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-800">
+                {getConsumptionMethodLabel(order.consumptionMethod)}
+              </span>
+              {order.address && (
+                <span className="truncate text-xs text-gray-500">
+                  {order.address}
+                </span>
+              )}
             </div>
             <Separator />
             <div className="space-y-2">
