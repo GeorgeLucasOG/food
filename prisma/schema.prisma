@@ -197,4 +197,5 @@ enum OrderStatus {
 enum ConsumptionMethod {
   TAKEAWAY
   DINE_IN
+  DELIVERY
 }

@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
       { hostname: "img.cardapio.menu" },
       { hostname: "images2.imgbox.com" },
       { hostname: "img.freepik.com" },
+      { hostname: "rnyjdamaqjxplmpskdry.supabase.co" },
     ],
   },
 };

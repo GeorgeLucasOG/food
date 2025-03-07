@@ -48,8 +48,8 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
   };
   return (
     <>
-      <div className="relative z-50 mt-[-1.5rem] flex flex-auto flex-col overflow-hidden rounded-t-3xl p-5">
-        <div className="flex-auto overflow-hidden">
+      <div className="relative z-50 mt-[-1.5rem] flex h-full flex-col overflow-hidden rounded-t-3xl p-5">
+        <ScrollArea className="flex-1 pb-20 pr-4">
           {/* RESTAURANTE */}
           <div className="flex items-center gap-1.5">
             <Image
@@ -91,33 +91,34 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
             </div>
           </div>
 
-          <ScrollArea className="h-full">
-            {/* SOBRE */}
-            <div className="mt-6 space-y-3">
-              <h4 className="font-semibold">Sobre</h4>
-              <p className="text-sm text-muted-foreground">
-                {product.description}
-              </p>
-            </div>
+          {/* SOBRE */}
+          <div className="mt-6 space-y-3">
+            <h4 className="font-semibold">Sobre</h4>
+            <p className="text-sm text-muted-foreground">
+              {product.description}
+            </p>
+          </div>
 
-            {/* INGREDIENTS */}
-            <div className="mt-6 space-y-3">
-              <div className="5 flex items-center gap-1">
-                <ChefHatIcon size={18} />
-                <h4 className="font-semibold">Ingredientes</h4>
-              </div>
-              <ul className="text-muted-fo list-disc px-5 text-sm text-muted-foreground">
-                {product.ingredients.map((ingredient) => (
-                  <li key={ingredient}>{ingredient}</li>
-                ))}
-              </ul>
+          {/* INGREDIENTS */}
+          <div className="mt-6 space-y-3">
+            <div className="5 flex items-center gap-1">
+              <ChefHatIcon size={18} />
+              <h4 className="font-semibold">Ingredientes</h4>
             </div>
-          </ScrollArea>
+            <ul className="text-muted-fo list-disc px-5 text-sm text-muted-foreground">
+              {product.ingredients.map((ingredient) => (
+                <li key={ingredient}>{ingredient}</li>
+              ))}
+            </ul>
+          </div>
+        </ScrollArea>
+
+        {/* Botão fixo na parte inferior */}
+        <div className="sticky bottom-0 mt-4 bg-white pt-2">
+          <Button className="w-full rounded-full" onClick={handleAddToCart}>
+            Adicionar à sacola
+          </Button>
         </div>
-
-        <Button className="w-full rounded-full" onClick={handleAddToCart}>
-          Adicionar à sacola
-        </Button>
       </div>
       <CartSheet />
     </>
