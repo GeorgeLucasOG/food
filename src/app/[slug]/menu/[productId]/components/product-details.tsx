@@ -48,7 +48,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
   };
   return (
     <>
-      <div className="relative z-50 mt-[-1.5rem] flex h-full flex-col overflow-hidden rounded-t-3xl p-5">
+      <div className="relative z-50 mt-[-1.5rem] flex h-full flex-col rounded-t-3xl p-5">
         <ScrollArea className="flex-1 pb-20 pr-4">
           {/* RESTAURANTE */}
           <div className="flex items-center gap-1.5">
