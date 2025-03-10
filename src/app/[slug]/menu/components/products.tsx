@@ -14,15 +14,15 @@ const Products = ({ products }: ProductsProps) => {
   const searchParams = useSearchParams();
   const consumptionMethod = searchParams.get("consumptionMethod");
   return (
-    <div className="space-y-3 px-5">
+    <div className="space-y-4 px-5">
       {products.map((product) => (
         <Link
           key={product.id}
           href={`/${slug}/menu/${product.id}?consumptionMethod=${consumptionMethod}`}
-          className="flex items-center justify-between gap-10 border-b py-3"
+          className="flex items-center gap-4 border-b pb-4"
         >
-          {/* ESQUERDA */}
-          <div>
+          {/* ESQUERDA - Informações do produto */}
+          <div className="flex-1">
             <h3 className="text-sm font-medium">{product.name}</h3>
             <p className="line-clamp-2 text-sm text-muted-foreground">
               {product.description}
@@ -32,13 +32,14 @@ const Products = ({ products }: ProductsProps) => {
             </p>
           </div>
 
-          {/* DIREITA */}
-          <div className="relative min-h-[82px] min-w-[120px]">
+          {/* DIREITA - Imagem do produto */}
+          <div className="relative h-[110px] w-[160px]">
             <Image
               src={product.imageUrl}
               alt={product.name}
               fill
-              className="rounded-lg object-contain"
+              className="rounded-lg object-cover"
+              sizes="(max-width: 768px) 160px, 200px"
             />
           </div>
         </Link>
