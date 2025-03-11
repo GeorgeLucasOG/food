@@ -19,6 +19,7 @@ interface CreateOrderInput {
   slug: string;
   address?: string;
   whatsapp?: string;
+  tableNumber?: string;
 }
 
 export const createOrder = async (input: CreateOrderInput) => {
@@ -49,6 +50,8 @@ export const createOrder = async (input: CreateOrderInput) => {
       customerCpf: removeCpfPunctuation(input.customerCpf),
       address: input.address,
       whatsapp: input.whatsapp,
+      // @ts-expect-error - Campo adicionado manualmente ao banco de dados
+      tableNumber: input.tableNumber,
       orderProducts: {
         createMany: {
           data: productsWithPricesAndQuantities,

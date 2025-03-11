@@ -19,8 +19,6 @@ model Restaurant {
   updatedAt          DateTime             @updatedAt
   AccountsPayable    AccountsPayable[]
   AccountsReceivable AccountsReceivable[]
-  CashMovements      CashMovements[]
-  CashRegisters      CashRegisters[]
   Ingredients        Ingredients[]
   menuCategories     MenuCategory[]
   orders             Order[]
@@ -67,6 +65,7 @@ model Order {
   customerName      String
   address           String?           @db.VarChar(255)
   whatsapp          String?           @db.VarChar(15)
+  tableNumber       String?           @db.VarChar(10)
   restaurant        Restaurant        @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   orderProducts     OrderProduct[]
 }
@@ -113,38 +112,6 @@ model AccountsReceivable {
   Restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model CashMovements {
-  id             String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  cashRegisterId String        @db.Uuid
-  amount         Float
-  type           String
-  description    String
-  paymentMethod  String
-  orderId        Int?
-  restaurantId   String
-  createdAt      DateTime      @default(now()) @db.Timestamptz(6)
-  updatedAt      DateTime?     @db.Timestamptz(6)
-  CashRegisters  CashRegisters @relation(fields: [cashRegisterId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  Restaurant     Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model CashRegisters {
-  id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name          String
-  initialAmount Float
-  currentAmount Float
-  openedAt      DateTime?       @db.Timestamptz(6)
-  closedAt      DateTime?       @db.Timestamptz(6)
-  status        String
-  restaurantId  String
-  createdAt     DateTime        @default(now()) @db.Timestamptz(6)
-  updatedAt     DateTime?       @db.Timestamptz(6)
-  CashMovements CashMovements[]
-  Restaurant    Restaurant      @relation(fields: [restaurantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
 model Ingredients {
   id             String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name           String
@@ -188,6 +155,13 @@ model Suppliers {
   Restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
+model ApiSettings {
+  id              String   @id @db.Uuid
+  imageProcessing Json
+  createdAt       DateTime @db.Timestamptz(6)
+  updatedAt       DateTime @db.Timestamptz(6)
+}
+
 enum OrderStatus {
   PENDING
   IN_PREPARATION
@@ -197,5 +171,4 @@ enum OrderStatus {
 enum ConsumptionMethod {
   TAKEAWAY
   DINE_IN
-  DELIVERY
 }

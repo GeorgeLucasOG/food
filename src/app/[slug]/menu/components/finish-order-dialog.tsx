@@ -73,6 +73,7 @@ type FormSchema = {
   deliveryOption: "euLevo" | "delivery";
   address?: string;
   whatsapp?: string;
+  tableNumber?: string; // Campo para número da mesa quando for DINE_IN
 };
 
 const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
@@ -121,6 +122,14 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
               "O WhatsApp/Celular é obrigatório quando Delivery é selecionado.",
           })
           .optional(),
+        tableNumber: z
+          .string()
+          .trim()
+          .min(1, {
+            message:
+              "O número da mesa é obrigatório quando DINE_IN é selecionado.",
+          })
+          .optional(),
       }),
     ),
     defaultValues: {
@@ -129,6 +138,7 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
       deliveryOption: "euLevo",
       address: "",
       whatsapp: "",
+      tableNumber: "",
     },
     shouldUnregister: true,
   });
@@ -136,6 +146,15 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
   const isDelivery = form.watch("deliveryOption") === "delivery";
 
   React.useEffect(() => {
+    // Se for DINE_IN, tornar o campo tableNumber obrigatório
+    if (isDineIn) {
+      form.register("tableNumber", {
+        required: "O número da mesa é obrigatório para consumo no local.",
+      });
+    } else {
+      form.unregister("tableNumber");
+    }
+
     // Se NÃO for DINE_IN e Delivery estiver selecionado
     if (!isDineIn && isDelivery) {
       // Tornar os campos obrigatórios
@@ -166,6 +185,10 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
           customerName: data.name,
           products,
           slug,
+          // Incluir tableNumber se for DINE_IN
+          ...(isDineIn && {
+            tableNumber: data.tableNumber,
+          }),
           // Só envia address e whatsapp se não for DINE_IN e for delivery
           ...(!isDineIn &&
             data.deliveryOption === "delivery" && {
@@ -225,6 +248,26 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
                   </FormItem>
                 )}
               />
+
+              {/* Campo de Mesa - apenas para DINE_IN */}
+              {isDineIn && (
+                <FormField
+                  control={form.control}
+                  name="tableNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Número da Mesa</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Digite o número da sua mesa..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               {/* Mostrar opções de entrega apenas se NÃO for DINE_IN */}
               {!isDineIn && (
