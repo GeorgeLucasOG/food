@@ -81,6 +81,12 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
+  // Verifica se o método de consumo é DINE_IN (consumir no local)
+  const consumptionMethod = searchParams.get(
+    "consumptionMethod",
+  ) as ConsumptionMethod;
+  const isDineIn = consumptionMethod === "DINE_IN";
+
   const form = useForm<FormSchema>({
     resolver: zodResolver(
       z.object({
@@ -96,7 +102,10 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
           .refine((value) => isValidCpf(value), {
             message: "CPF inválido.",
           }),
-        deliveryOption: z.enum(["euLevo", "delivery"]),
+        // Só requer deliveryOption se não for DINE_IN
+        deliveryOption: isDineIn
+          ? z.enum(["euLevo", "delivery"]).optional()
+          : z.enum(["euLevo", "delivery"]),
         address: z
           .string()
           .trim()
@@ -126,10 +135,10 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
 
   const isDelivery = form.watch("deliveryOption") === "delivery";
 
-  // Adicionar validação dinâmica com base em isDelivery
   React.useEffect(() => {
-    if (isDelivery) {
-      // Se Delivery está selecionado, tornar os campos obrigatórios
+    // Se NÃO for DINE_IN e Delivery estiver selecionado
+    if (!isDineIn && isDelivery) {
+      // Tornar os campos obrigatórios
       form.register("address", {
         required: "O endereço é obrigatório quando Delivery é selecionado.",
       });
@@ -138,17 +147,18 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
           "O WhatsApp/Celular é obrigatório quando Delivery é selecionado.",
       });
     } else {
-      // Se não está selecionado, remover a validação
+      // Se for DINE_IN ou não for Delivery, remover a validação
       form.unregister("address");
       form.unregister("whatsapp");
     }
-  }, [isDelivery, form]);
+  }, [isDineIn, isDelivery, form]);
 
   const onSubmit = async (data: FormSchema) => {
     try {
       const consumptionMethod = searchParams.get(
         "consumptionMethod",
       ) as ConsumptionMethod;
+
       startTransition(async () => {
         await createOrder({
           consumptionMethod,
@@ -156,10 +166,12 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
           customerName: data.name,
           products,
           slug,
-          ...(data.deliveryOption === "delivery" && {
-            address: data.address,
-            whatsapp: data.whatsapp,
-          }),
+          // Só envia address e whatsapp se não for DINE_IN e for delivery
+          ...(!isDineIn &&
+            data.deliveryOption === "delivery" && {
+              address: data.address,
+              whatsapp: data.whatsapp,
+            }),
         });
         onOpenChange(false);
         toast.success("Pedido finalizado com sucesso!");
@@ -168,6 +180,7 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
       console.error(error);
     }
   };
+
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerTrigger asChild></DrawerTrigger>
@@ -212,60 +225,65 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="deliveryOption"
-                render={({ field }) => (
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Método de Entrega
-                    </label>
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center">
-                        <input
-                          {...field}
-                          id="euLevo"
-                          type="radio"
-                          value="euLevo"
-                          className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                          required
-                        />
-                        <label
-                          htmlFor="euLevo"
-                          className="ml-3 block text-sm font-medium text-gray-700"
-                        >
-                          Eu levo
-                          <span
-                            className="ml-1 text-gray-500"
-                            title="Você irá buscar o pedido no local."
-                          ></span>
-                        </label>
-                      </div>
-                      <div className="flex items-center">
-                        <input
-                          {...field}
-                          id="delivery"
-                          type="radio"
-                          value="delivery"
-                          className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                          required
-                        />
-                        <label
-                          htmlFor="delivery"
-                          className="ml-3 block text-sm font-medium text-gray-700"
-                        >
-                          Delivery
-                          <span
-                            className="ml-1 text-gray-500"
-                            title="Nós entregaremos o pedido no seu endereço."
-                          ></span>
-                        </label>
+
+              {/* Mostrar opções de entrega apenas se NÃO for DINE_IN */}
+              {!isDineIn && (
+                <FormField
+                  control={form.control}
+                  name="deliveryOption"
+                  render={({ field }) => (
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Método de Entrega
+                      </label>
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center">
+                          <input
+                            {...field}
+                            id="euLevo"
+                            type="radio"
+                            value="euLevo"
+                            className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                            required
+                          />
+                          <label
+                            htmlFor="euLevo"
+                            className="ml-3 block text-sm font-medium text-gray-700"
+                          >
+                            Eu levo
+                            <span
+                              className="ml-1 text-gray-500"
+                              title="Você irá buscar o pedido no local."
+                            ></span>
+                          </label>
+                        </div>
+                        <div className="flex items-center">
+                          <input
+                            {...field}
+                            id="delivery"
+                            type="radio"
+                            value="delivery"
+                            className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                            required
+                          />
+                          <label
+                            htmlFor="delivery"
+                            className="ml-3 block text-sm font-medium text-gray-700"
+                          >
+                            Delivery
+                            <span
+                              className="ml-1 text-gray-500"
+                              title="Nós entregaremos o pedido no seu endereço."
+                            ></span>
+                          </label>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              />
-              {isDelivery && (
+                  )}
+                />
+              )}
+              {/* Campos de endereço e WhatsApp aparecem apenas se NÃO for DINE_IN e a opção for delivery */}
+              {!isDineIn && isDelivery && (
                 <FormField
                   control={form.control}
                   name="address"
@@ -283,7 +301,7 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
                   )}
                 />
               )}
-              {isDelivery && (
+              {!isDineIn && isDelivery && (
                 <FormField
                   control={form.control}
                   name="whatsapp"
