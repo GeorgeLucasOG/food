@@ -35,6 +35,8 @@ const getStatusLabel = (status: OrderStatus) => {
   if (status === "FINISHED") return "Finalizado";
   if (status === "IN_PREPARATION") return "Em preparo";
   if (status === "PENDING") return "Pendente";
+  if (status === "PAYMENT_CONFIRMED") return "Pagamento confirmado";
+  if (status === "PAYMENT_FAILED") return "Pagamento falhou";
   return "";
 };
 
@@ -67,7 +69,7 @@ const OrderList = ({ orders }: OrderListProps) => {
             <div className="flex items-center justify-between">
               <div
                 className={`w-fit rounded-full px-2 py-1 text-xs font-semibold text-white ${
-                  order.status === OrderStatus.FINISHED
+                  ([OrderStatus.PAYMENT_CONFIRMED, OrderStatus.FINISHED] as OrderStatus[]).includes(order.status)
                     ? "bg-green-500 text-white"
                     : order.status === OrderStatus.IN_PREPARATION
                       ? "bg-yellow-500 text-white"
