@@ -2,12 +2,14 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ConsumptionMethod } from "@prisma/client";
+import { loadStripe } from '@stripe/stripe-js';
 import { Loader2Icon } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useContext, useState, useTransition } from "react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
+import { toast } from 'sonner';
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -32,11 +34,9 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { createOrder } from "../actions/create-order";
+import { createStripeCheckout } from "../actions/create-stripe-checkout";
 import { CartContext } from "../contexts/cart";
 import { isValidCpf } from "../helpers/cpf";
-import { createStripeCheckout } from "../actions/create-stripe-checkout";
-import { loadStripe } from '@stripe/stripe-js';
-import { toast } from 'sonner';
 
 interface FinishOrderDialogProps {
   open: boolean;
@@ -76,6 +76,7 @@ type FormSchema = {
   address?: string;
   whatsapp?: string;
   tableNumber?: string; // Campo para número da mesa quando for DINE_IN
+  formaDePagamento?: "pix" | "credito" | "debito";
 };
 
 const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
@@ -132,6 +133,9 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
               "O número da mesa é obrigatório quando DINE_IN é selecionado.",
           })
           .optional(),
+        formaDePagamento: z.enum(["pix", "credito", "debito"],{
+          required_error: "A forma de pagamento é obrigatória.",
+        }),
       }),
     ),
     defaultValues: {
@@ -141,6 +145,7 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
       address: "",
       whatsapp: "",
       tableNumber: "",
+      formaDePagamento: "pix",
     },
     shouldUnregister: true,
   });
@@ -346,6 +351,74 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
                 />
               )}
               {/* Campos de endereço e WhatsApp aparecem apenas se NÃO for DINE_IN e a opção for delivery */}
+              {!isDineIn && isDelivery && (
+                <FormField
+                  control={form.control}
+                  name="formaDePagamento"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Forma de Pagamento</FormLabel>
+                      <div className="flex flex-col space-y-2">
+                        <div className="flex items-center">
+                          <FormControl>
+                            <input
+                              {...field}
+                              id="pix"
+                              type="radio"
+                              value="pix"
+                              checked={field.value === "pix"}
+                              className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                            />
+                          </FormControl>
+                          <label
+                            htmlFor="pix"
+                            className="ml-3 block text-sm font-medium text-gray-700"
+                          >
+                            Pix
+                          </label>
+                        </div>
+                        <div className="flex items-center">
+                          <FormControl>
+                            <input
+                              {...field}
+                              id="credito"
+                              type="radio"
+                              value="credito"
+                              checked={field.value === "credito"}
+                              className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                            />
+                          </FormControl>
+                          <label
+                            htmlFor="credito"
+                            className="ml-3 block text-sm font-medium text-gray-700"
+                          >
+                            Cartão de Crédito
+                          </label>
+                        </div>
+                        <div className="flex items-center">
+                          <FormControl>
+                            <input
+                              {...field}
+                              id="debito"
+                              type="radio"
+                              value="debito"
+                              checked={field.value === "debito"}
+                              className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                            />
+                          </FormControl>
+                          <label
+                            htmlFor="debito"
+                            className="ml-3 block text-sm font-medium text-gray-700"
+                          >
+                            Cartão de Débito
+                          </label>
+                        </div>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}              
               {!isDineIn && isDelivery && (
                 <FormField
                   control={form.control}
